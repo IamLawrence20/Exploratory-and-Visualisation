@@ -1,0 +1,59 @@
+library("tidyverse")
+library("gapminder")
+library("patchwork")
+summary(gapminder)
+View(gapminder)
+#comparing the population growth of Nigeria and South Africa
+unique_values <- unique(gapminder$year)
+p1 <- gapminder %>%
+  filter(country=="Nigeria" | country=="South Africa") %>%
+  ggplot(aes(x = year, y = pop)) +
+  geom_line(aes(colour=country)) +
+  scale_color_manual(values = c("#458B00", "#FFD700")) +
+  scale_y_continuous(breaks = c(0, 20000000, 40000000, 60000000, 800000000,
+                                100000000, 120000000, 140000000),
+                     labels = c(0, "20m", "40m", "60m", "80m",
+                                "100m", "120m", "140m")) +
+  scale_x_continuous(breaks = unique_values) +
+  theme_classic() +
+  labs(x = "Year",
+       y= "Population")
+p1
+
+#comparing the gdp per capital of Nigeria and South Africa
+p2 <- gapminder %>%
+  filter(country=="Nigeria" | country=="South Africa") %>%
+  ggplot(aes(x = year, y = gdpPercap)) +
+  scale_color_manual(values = c("#458B00", "#FFD700")) +
+  geom_line(aes(colour=country)) +
+  scale_y_continuous(breaks = c(0, 2000, 4000, 6000, 8000, 10000)) +
+  scale_x_continuous(breaks = unique_values) +
+  theme_classic()+
+  labs(x = "Year",
+       y= "GDP Per Capital")
+p2
+
+#comparing the life expectancy of Nigeria and South Africa
+unique.values <- unique(gapminder$year)
+p3 <- gapminder %>% 
+  filter(country == "Nigeria" | country == "South Africa") %>% 
+  ggplot(aes(x = year, y = lifeExp)) +
+  geom_line(aes(colour=country)) +
+  scale_color_manual(values = c("#458B00", "#FFD700")) +
+  scale_x_continuous(breaks = unique.values) +
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60)) +
+  theme_classic()+
+  labs(x = "Year",
+       y= "Life Expectancy")
+p3
+
+#merging together using patchwork
+p_all <- p1 + (p2 / p3)
+p_all <- p_all + plot_layout(guides = "collect")
+p_all + plot_annotation(
+  title = "Comparing the population, GDP and Life expectancy growth of Nigeria and South Africa",
+  subtitle = "The population, GDP and Life expectancy of Nigeria and South Africa between the year 1952 to 2007",
+  caption = "source: Gapminder",
+  tag_levels = "A"
+)
+ggsave("pop and gdp2.png", width = 40, height = 20, units = "cm", dpi = 450)
